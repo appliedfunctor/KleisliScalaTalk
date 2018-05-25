@@ -25,7 +25,7 @@ object MainWithCats extends App with StrictLogging {
                                             bToMessage // Int => Boolean
 
   assert(checkNumber("5") == altCheckNumber("5"))
-  println(s"checkNumber and altCheckNumber are equal. ")
+  logger.info(s"checkNumber and altCheckNumber are equal. ")
 
   val safeParseNumber: String => Option[Int] = num => Try { Integer.parseInt(num) } match {
     case Success(number) => Some(number)
@@ -58,8 +58,8 @@ object MainWithCats extends App with StrictLogging {
     written <- writeNumberToDb(processed)
   } yield written
 
-  println("For comprehension flatmap composition: " + handleRequestF().unsafeRunSync)
-  println("Cats Kleisli andThen combination: " + handleRequest().unsafeRunSync)
+  logger.info("For comprehension flatmap composition: " + handleRequestF().unsafeRunSync)
+  logger.info("Cats Kleisli andThen combination: " + handleRequest().unsafeRunSync)
 
 
 
