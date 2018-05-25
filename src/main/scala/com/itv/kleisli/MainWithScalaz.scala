@@ -21,8 +21,8 @@ object MainWithScalaz extends App with StrictLogging {
                                           parseNumber
 
   val altCheckNumber: String => String = parseNumber andThen // String => Int
-                                          withinBounds andThen // Int => Int
-                                            bToMessage // Int => Boolean
+                                          withinBounds andThen // Int => Boolean
+                                            bToMessage // Boolean => String
 
   assert(checkNumber("5") == altCheckNumber("5"))
   logger.info(s"checkNumber and altCheckNumber are equal. ")
@@ -40,12 +40,12 @@ object MainWithScalaz extends App with StrictLogging {
   val safeCheckNumber = safeParseNumber andThen safeWithinBounds andThen toMessage
 
 
-  val getNumberFromDb: Unit => Task[Int] = Unit => Task(5)
+  val getNumberFromDb: Unit => Task[Int] = _ => Task(5)
   val processNumber: Int => Task[Int] = number => Task(number * 2)
   val writeNumberToDb: Int => Task[Boolean] = number => Task(true)
 
 
-  val getNumberFromDbK: Kleisli[Task, Unit, Int] = Kleisli(Unit => Task(5))
+  val getNumberFromDbK: Kleisli[Task, Unit, Int] = Kleisli(_ => Task(5))
   val processNumberK: Kleisli[Task, Int, Int] = Kleisli(number => Task(number * 2))
   val writeNumberToDbK: Kleisli[Task, Int, Boolean] = Kleisli(number => Task(true))
 
@@ -54,8 +54,8 @@ object MainWithScalaz extends App with StrictLogging {
   val handleRequest: Unit => Task[Boolean] = handleRequestK.run
   val handleRequestAlt: Unit => Task[Boolean] = handleRequestAltK.run
 
-  val handleRequestF: () => Task[Boolean] = () => for {
-    number <- getNumberFromDb(())
+  val handleRequestF: Unit => Task[Boolean] = _ => for {
+    number <- getNumberFromDb()
     processed <- processNumber(number)
     written <- writeNumberToDb(processed)
   } yield written

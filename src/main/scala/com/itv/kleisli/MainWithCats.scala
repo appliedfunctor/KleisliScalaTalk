@@ -17,12 +17,12 @@ object MainWithCats extends App with StrictLogging {
   }
 
   val checkNumber: String => String = bToMessage compose
-                                      withinBounds compose
-                                        parseNumber
+                                        withinBounds compose
+                                          parseNumber
 
   val altCheckNumber: String => String = parseNumber andThen // String => Int
-                                          withinBounds andThen // Int => Int
-                                            bToMessage // Int => Boolean
+                                          withinBounds andThen // Int => Boolean
+                                            bToMessage // Boolean => String
 
   assert(checkNumber("5") == altCheckNumber("5"))
   logger.info(s"checkNumber and altCheckNumber are equal. ")
@@ -40,20 +40,20 @@ object MainWithCats extends App with StrictLogging {
   val safeCheckNumber = safeParseNumber andThen safeWithinBounds andThen toMessage
 
 
-  val getNumberFromDb: Unit => IO[Int] = Unit => IO.pure(5)
+  val getNumberFromDb: Unit => IO[Int] = _ => IO.pure(5)
   val processNumber: Int => IO[Int] = number => IO.pure(number * 2)
   val writeNumberToDb: Int => IO[Boolean] = number => IO.pure(true)
 
 
-  val getNumberFromDbK: Kleisli[IO, Unit, Int] = Kleisli(Unit => IO.pure(5))
+  val getNumberFromDbK: Kleisli[IO, Unit, Int] = Kleisli(_ => IO.pure(5))
   val processNumberK: Kleisli[IO, Int, Int] = Kleisli(number => IO.pure(number * 2))
   val writeNumberToDbK: Kleisli[IO, Int, Boolean] = Kleisli(number => IO.pure(true))
 
   val handleRequestK: Kleisli[IO, Unit, Boolean] = getNumberFromDbK andThen processNumberK andThen writeNumberToDbK
   val handleRequest: Unit => IO[Boolean] = handleRequestK.run
 
-  val handleRequestF: () => IO[Boolean] = () => for {
-    number <- getNumberFromDb(())
+  val handleRequestF: Unit => IO[Boolean] = _ => for {
+    number <- getNumberFromDb()
     processed <- processNumber(number)
     written <- writeNumberToDb(processed)
   } yield written
